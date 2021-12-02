@@ -1,0 +1,119 @@
+import java.io.*;
+import java.util.*;
+
+class Worker {
+    public int arrivalTime;
+    public int stayingTime; 
+
+    Worker (int arrivalTime, int stayingTime) {
+        this.arrivalTime = arrivalTime; 
+        this.stayingTime = stayingTime; 
+    }
+    public int nextAVailTime() {
+        return this.arrivalTime + this.stayingTime;
+    }
+}
+
+class WorkerComparator implements Comparator<Worker>{
+    @Override
+    public int compare(Worker w1, Worker w2) {
+        return (w1.arrivalTime < w2.arrivalTime)
+        ? -1
+        : (w1.arrivalTime == w2.arrivalTime)
+        ? 0
+        : 1;    
+    }      
+}
+
+class workstation {
+    public static void main(String[] args) {
+        Kattio io = new Kattio(System.in, System.out);
+        int numOfWorkers = io.getInt();
+        int unlocked = io.getInt();
+
+        PriorityQueue<Integer> workstation = new PriorityQueue<>(); 
+        PriorityQueue<Worker> workstationQ = new PriorityQueue<Worker>(numOfWorkers, new WorkerComparator());
+        
+        for (int i = 0; i < numOfWorkers; i++) { 
+            workstationQ.add(new Worker(io.getInt(), io.getInt()));    
+        }
+        int result = 0;
+    
+        for (int i = 0; i < numOfWorkers; i++) {
+            //next worker in pq
+            Worker w = workstationQ.peek(); 
+
+            while (workstation.size() !=0 && workstation.peek() + unlocked < w.arrivalTime) { 
+                    workstation.poll();
+            }
+        
+
+            if (workstation.size() != 0 && workstationQ.peek().arrivalTime <= workstation.peek() + unlocked && workstation.peek() <= workstationQ.peek().arrivalTime) {
+                workstation.poll();
+                result++;
+            }
+            //add in the next available room timings
+            workstation.add(workstationQ.poll().nextAVailTime());
+        }      
+        io.println(result);
+        io.close();
+    }
+}
+
+
+class Kattio extends PrintWriter {
+    public Kattio(InputStream i) {
+        super(new BufferedOutputStream(System.out));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    public Kattio(InputStream i, OutputStream o) {
+        super(new BufferedOutputStream(o));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    
+    public boolean hasMoreTokens() {
+        return peekToken() != null;
+    }
+    
+    public int getInt() {
+        return Integer.parseInt(nextToken());
+    }
+    
+    public double getDouble() {
+        return Double.parseDouble(nextToken());
+    }
+    
+    public long getLong() {
+        return Long.parseLong(nextToken());
+    }
+    
+    public String getWord() {
+        return nextToken();
+    }
+    
+    
+    
+    private BufferedReader r;
+    private String line;
+    private StringTokenizer st;
+    private String token;
+    
+    private String peekToken() {
+        if (token == null)
+            try {
+                while (st == null || !st.hasMoreTokens()) {
+                    line = r.readLine();
+                    if (line == null) return null;
+                    st = new StringTokenizer(line);
+                }
+                token = st.nextToken();
+            } catch (IOException e) { }
+        return token;
+    }
+    
+    private String nextToken() {
+        String ans = peekToken();
+        token = null;
+        return ans;
+    }
+}
