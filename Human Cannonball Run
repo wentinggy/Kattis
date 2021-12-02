@@ -1,0 +1,164 @@
+import java.io.*;
+import java.util.*;
+
+class cannonball {
+    public static final int runRate = 5;
+    public static final int cannnonDistance = 50;
+    public static final double infinity = 10000000000.0;
+
+    public static void main(String[] args) {
+        
+        Kattio io = new Kattio(System.in,System.out); 
+        double x = io.getDouble(); 
+        double y = io.getDouble(); 
+        double xVenue = io.getDouble();
+        double yVenue = io.getDouble();
+        int cannonNumber = io.getInt(); 
+
+        double[][] cannonMatrix = new double[cannonNumber][2];
+        for (int i = 0; i < cannonNumber; i++) {
+            cannonMatrix [i][0] = io.getDouble();
+            cannonMatrix [i][1] = io.getDouble();
+        }
+
+        int[] visited = new int[cannonNumber+2];
+        double[][] adjM = new double[cannonNumber+2][cannonNumber+2]; 
+        double a = Math.pow(x - xVenue, 2); 
+        double b = Math.pow(y - yVenue, 2);
+        adjM[0][1] = Math.sqrt(a + b) / runRate;
+        adjM[1][0] = Math.sqrt(a + b) / runRate;
+        
+
+        for (int i = 0; i < cannonNumber; i++) { 
+            double d = Math.sqrt(Math.pow((x - cannonMatrix[i][0]), 2) + Math.pow((y - cannonMatrix [i][1]), 2));
+            int updated = i+2;
+            adjM[0][updated] = d / runRate; 
+            double value = Math.abs(d - cannnonDistance) / runRate;
+            adjM[updated][0] = value + 2; 
+        }
+
+        for (int i = 0; i < cannonNumber; i++) { 
+            double d = Math.sqrt(Math.pow((xVenue - cannonMatrix[i][0]), 2) + Math.pow((yVenue - cannonMatrix[i][1]), 2));
+            int updated = i+2;
+            adjM[1][updated] = d / runRate; 
+            double value = Math.abs(d - cannnonDistance) / runRate;
+            adjM[updated][1] = value + 2; 
+        }
+
+        for (int i = 0; i < cannonNumber; i++) {
+            for (int j = 0; j < cannonNumber; j++) {
+                double d = Math.sqrt(Math.pow((cannonMatrix [j][0] - cannonMatrix[i][0]), 2) + Math.pow((cannonMatrix [j][1] - cannonMatrix [i][1]), 2));
+                int updatedx = i+2;
+                int updatedy = j+2;
+                double value = Math.abs(d - cannnonDistance) / runRate;
+                adjM[updatedx][updatedy] = value + 2;
+                adjM[updatedy][updatedx] = adjM[updatedx][updatedy];
+            }
+        } 
+
+        PriorityQueue<IntegerPair> pq = new PriorityQueue<IntegerPair>(new pairComparator());;
+        double[] duration = new double[cannonNumber+2];
+        for (int i = 0; i < cannonNumber+2; i++) {
+            duration[i] = infinity;
+        }
+
+        pq.add(new IntegerPair(0,0));
+        while (pq.size() > 0 ) {
+            IntegerPair first = pq.poll();
+            if(visited[first.source] == 0) {
+                visited[first.source] = 1; 
+                for(int i = 0; i < cannonNumber+2; i++) {
+                    String success = "no";
+                    if (visited[i] == 0 && duration[i] > first.mass + adjM[first.source][i] && i != first.source) {
+                        success = "yes";
+                    }
+                    if (success == "yes") {
+                        duration[i] = first.mass + adjM[first.source][i];
+                        pq.add(new IntegerPair(duration[i], i));
+                    }
+                }
+            }
+        }
+        io.println(duration[1]);
+        io.close();
+    }
+    
+}
+
+class IntegerPair {
+    
+    public double mass; 
+    public int source; 
+
+    IntegerPair(double mass, int source) {
+        this.mass = mass; 
+        this.source = source;
+    }
+
+}
+
+class pairComparator implements Comparator<IntegerPair>{
+    @Override
+    public int compare(IntegerPair ip1, IntegerPair ip2) {
+        return (ip1.mass < ip2.mass)
+        ? -1
+        : (ip1.mass > ip2.mass)
+        ? 1
+        : 0;
+    }      
+}
+
+class Kattio extends PrintWriter {
+    public Kattio(InputStream i) {
+        super(new BufferedOutputStream(System.out));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    public Kattio(InputStream i, OutputStream o) {
+        super(new BufferedOutputStream(o));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    
+    public boolean hasMoreTokens() {
+        return peekToken() != null;
+    }
+    
+    public int getInt() {
+        return Integer.parseInt(nextToken());
+    }
+    
+    public double getDouble() {
+        return Double.parseDouble(nextToken());
+    }
+    
+    public long getLong() {
+        return Long.parseLong(nextToken());
+    }
+    
+    public String getWord() {
+        return nextToken();
+    }
+    
+    private BufferedReader r;
+    private String line;
+    private StringTokenizer st;
+    private String token;
+    
+    private String peekToken() {
+        if (token == null)
+            try {
+                while (st == null || !st.hasMoreTokens()) {
+                    line = r.readLine();
+                    if (line == null) return null;
+                    st = new StringTokenizer(line);
+                }
+                token = st.nextToken();
+            } catch (IOException e) { }
+        return token;
+    }
+    
+    private String nextToken() {
+        String ans = peekToken();
+        token = null;
+        return ans;
+    }
+}
