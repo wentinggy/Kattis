@@ -1,0 +1,121 @@
+import java.io.*;
+import java.util.*;
+
+class input {
+    public String verb;
+    public int number;
+
+    public input(String verb, int number) {
+        this.number = number;
+        this.verb = verb;
+    }
+}
+
+public class teque {
+    public static void main(String[] args){
+    Kattio io = new Kattio(System.in, System.out);
+
+        int number = io.getInt();
+        Hashtable<Integer, Integer> h1 = new Hashtable<>();
+        Hashtable<Integer, Integer> h2 = new Hashtable<>();
+        int h1Start = -1;
+        int h1End = 0;
+        int h2Start = -1;
+        int h2End = 0;
+        
+        for (int i = 0; i < number; i++) {
+            input curr = new input(io.getWord(), io.getInt());     
+            
+            if (curr.verb.equals("get")) {
+                Integer result = curr.number >= h1.size() 
+                ? h2.get(curr.number - h1.size() + h2Start + 1)
+                : h1.get(curr.number + h1Start + 1);
+                io.println(result);
+                continue;
+            }
+
+            if (curr.verb.equals("push_back")) {
+                h2.put(h2End++, curr.number);
+            } else {
+                int value = (curr.verb.equals("push_front"))
+                ? h1Start--
+                : h1End++;
+                h1.put(value , curr.number);
+            }
+            
+            if (h2.size() > h1.size()) {
+                h1.put(h1End, h2.get(h2Start + 1));
+                h1End++;
+                h2Start++;
+                h2.remove(h2Start);
+
+            }
+
+            if (h1.size() - 1 > h2.size()) {
+                h2.put(h2Start, h1.get(h1End - 1));
+                h2Start--;
+                h1End--;
+                h1.remove(h1End);
+            }
+
+        }
+        io.close();
+    }
+}
+
+class Kattio extends PrintWriter {
+public Kattio(InputStream i) {
+    super(new BufferedOutputStream(System.out));
+    r = new BufferedReader(new InputStreamReader(i));
+}
+public Kattio(InputStream i, OutputStream o) {
+    super(new BufferedOutputStream(o));
+    r = new BufferedReader(new InputStreamReader(i));
+}
+
+public boolean hasMoreTokens() {
+    return peekToken() != null;
+}
+
+public int getInt() {
+    return Integer.parseInt(nextToken());
+}
+
+public double getDouble() {
+    return Double.parseDouble(nextToken());
+}
+
+public long getLong() {
+    return Long.parseLong(nextToken());
+}
+
+public String getWord() {
+    return nextToken();
+}
+
+
+
+private BufferedReader r;
+private String line;
+private StringTokenizer st;
+private String token;
+
+private String peekToken() {
+    if (token == null)
+        try {
+            while (st == null || !st.hasMoreTokens()) {
+                line = r.readLine();
+                if (line == null) return null;
+                st = new StringTokenizer(line);
+            }
+            token = st.nextToken();
+        } catch (IOException e) { }
+    return token;
+}
+
+private String nextToken() {
+    String ans = peekToken();
+    token = null;
+    return ans;
+  }
+}
