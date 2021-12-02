@@ -1,0 +1,116 @@
+import java.io.*;
+import java.util.*;
+
+class islands {
+    public static void main(String[] args) {
+        Kattio io = new Kattio(System.in, System.out);
+
+        int rows = io.getInt();
+        int columns = io.getInt();
+
+        char[][] layout = new char[rows][columns];
+        int[][] visited = new int[rows][columns];
+
+        for (int i = 0; i < rows; i++) {
+            String wordInput = io.getWord();
+            for (int j = 0; j < columns; j++) {
+               layout[i][j] = wordInput.charAt(j);
+            }
+        }
+        int numIsland = 0;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                if (layout[i][j] == 'L' & visited[i][j] == 0) {
+                    numIsland++;
+                    dfs(layout, visited, i, j);
+                }
+            }
+        }
+        io.println(numIsland);
+        io.close();
+    }
+
+    static void dfs(char[][] layout, int[][] visited, int i, int j) {
+        if (visited[i][j] == 1) return;
+        
+        visited[i][j] = 1;
+
+        int[] horizontal = {0, 0, -1, 1};
+        int[] vertical = {1, -1, 0, 0};
+
+        for (int a = 0; a < 4; a++) {
+            int checkHorizontal = i + horizontal[a]; 
+            int checkVertical = j + vertical[a];
+            //if negative movement, out of layout
+            if (checkHorizontal < 0) continue; 
+            if (checkVertical < 0) continue;
+            //if movement is larger than length of layout
+            if (checkHorizontal >= layout.length) continue;
+            if (checkVertical >= layout[0].length) continue;
+
+            if (layout[checkHorizontal][checkVertical] == 'C') {
+                dfs(layout, visited, checkHorizontal, checkVertical); 
+            } 
+            if (layout[checkHorizontal][checkVertical] == 'L') {
+                dfs(layout, visited, checkHorizontal, checkVertical); 
+            }
+        }
+    }
+}
+
+
+
+class Kattio extends PrintWriter {
+    public Kattio(InputStream i) {
+        super(new BufferedOutputStream(System.out));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    public Kattio(InputStream i, OutputStream o) {
+        super(new BufferedOutputStream(o));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    
+    public boolean hasMoreTokens() {
+        return peekToken() != null;
+    }
+    
+    public int getInt() {
+        return Integer.parseInt(nextToken());
+    }
+    
+    public double getDouble() {
+        return Double.parseDouble(nextToken());
+    }
+    
+    public long getLong() {
+        return Long.parseLong(nextToken());
+    }
+    
+    public String getWord() {
+        return nextToken();
+    }
+    
+    private BufferedReader r;
+    private String line;
+    private StringTokenizer st;
+    private String token;
+    
+    private String peekToken() {
+        if (token == null)
+            try {
+                while (st == null || !st.hasMoreTokens()) {
+                    line = r.readLine();
+                    if (line == null) return null;
+                    st = new StringTokenizer(line);
+                }
+                token = st.nextToken();
+            } catch (IOException e) { }
+        return token;
+    }
+    
+    private String nextToken() {
+        String ans = peekToken();
+        token = null;
+        return ans;
+    }
+}
