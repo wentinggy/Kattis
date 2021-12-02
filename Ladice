@@ -1,0 +1,151 @@
+import java.io.*;
+import java.util.*;
+    
+class ladice {
+    public static void main(String[] args) {
+        Kattio io = new Kattio(System.in, System.out);
+        int numItems = io.getInt();
+        int numDrawers = io.getInt();
+
+        ufds set = new ufds(numDrawers+1);
+        //the ufds starts from 0 but the drawers start counting from 1
+        //so if you want to use the drawers as indices then you either +1 to the 
+        //UFDS or -1 from the drawer number. If you +1 to the drawer number
+        //then you will have 0 to N but 0 is unused
+
+        for (int i= 0; i < numItems; i++ ) {
+            int first = io.getInt();
+            int second = io.getInt();
+            set.unionSet(first, second);
+            String success = "success";
+            int ans = set.findSet(first);
+
+            if(set.drawersFilled[ans] < set.numDrawers[ans]) {
+                success = "LADICA";
+                set.drawersFilled[ans] = set.drawersFilled[ans] + 1;
+            } else {
+                success = "SMECE";
+            }
+            io.println(success);
+        }
+        io.close();
+    }
+        
+}
+
+
+class ufds {
+    public int[] p;
+    public int[] rank;
+    public int[] numDrawers;
+    public int[] drawersFilled;
+    public int drawerSet;
+
+    ufds(int x) {
+        this.p = new int[x];
+        //array p, p[i] records the parent of item i, if p[i] = i, then i is a root
+        this.rank = new int[x];
+        this.numDrawers = new int[x];
+        this.drawersFilled = new int[x];
+        this.drawerSet = drawerSet;
+        for (int i = 0; i < x; i++) {
+            p[i] = i;
+            rank[i] = 0;
+            numDrawers[i] = 1;
+        }
+    }
+
+    public int findSet(int i) {
+        //find the parent of each set
+        if(p[i] == i)
+            return i;
+        else {
+            p[i] = findSet(p[i]);
+            return p[i];
+        }
+    }
+
+    public boolean isSameSet(int i, int j) {
+        return findSet(i) == findSet(j);
+        //check if the parent are the same
+    }
+
+    public void unionSet(int i, int j) {
+        if (!isSameSet(i, j)) {
+            //i and j belong to different disjoint sets
+            int x = findSet(i);
+            int y = findSet(j);
+            //rank is used to keep the tree short
+            drawerSet--;
+            //number of drawers decrease
+            if (rank[x] > rank[y]) {
+                //parent of y will be x
+                p[y] = x;
+                numDrawers[x] += numDrawers[y];
+                drawersFilled[x] += drawersFilled[y];
+            } else {
+                p[x] = y;
+                numDrawers[y] += numDrawers[x];
+                drawersFilled[y] += drawersFilled[x];
+                if (rank[x] == rank[y]) //rank increases
+                    rank[y] = rank[y] + 1; //only if both trees initially same rank
+            } 
+            
+        }
+    }
+}
+
+class Kattio extends PrintWriter {
+    public Kattio(InputStream i) {
+        super(new BufferedOutputStream(System.out));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    public Kattio(InputStream i, OutputStream o) {
+        super(new BufferedOutputStream(o));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    
+    public boolean hasMoreTokens() {
+        return peekToken() != null;
+    }
+    
+    public int getInt() {
+        return Integer.parseInt(nextToken());
+    }
+    
+    public double getDouble() {
+        return Double.parseDouble(nextToken());
+    }
+    
+    public long getLong() {
+        return Long.parseLong(nextToken());
+    }
+    
+    public String getWord() {
+        return nextToken();
+    }
+    
+    private BufferedReader r;
+    private String line;
+    private StringTokenizer st;
+    private String token;
+    
+    private String peekToken() {
+        if (token == null)
+            try {
+                while (st == null || !st.hasMoreTokens()) {
+                    line = r.readLine();
+                    if (line == null) return null;
+                    st = new StringTokenizer(line);
+                }
+                token = st.nextToken();
+            } catch (IOException e) { }
+        return token;
+    }
+    
+    private String nextToken() {
+        String ans = peekToken();
+        token = null;
+        return ans;
+    }
+}
