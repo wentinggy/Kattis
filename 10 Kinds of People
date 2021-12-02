@@ -1,0 +1,140 @@
+import java.io.*;
+import java.util.*;
+
+class people {
+    public static void main(String[] args) { 
+        Kattio io = new Kattio(System.in,System.out);
+        int rows = io.getInt(); 
+        int columns = io.getInt(); 
+
+        int[][] layout = new int[rows][columns]; //adjacency matrix
+        for (int i = 0; i < rows; i++) {
+            String wordInput = io.getWord();
+            for (int j = 0; j < columns; j++) {
+                int a = Character.getNumericValue(wordInput.charAt(j));
+                layout[i][j] = a; //initialize entries in the matrix
+            }
+        }
+
+        int[][] movementMatrix = new int[rows][columns]; 
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                movementMatrix[i][j] = 0; //initialise all matrix entries to 0
+            }
+        }
+
+        int pathNum = 10; //dummy variable
+        //to find the same path 
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                if (movementMatrix[i][j] == 0) {
+                    pathSearch p = new pathSearch(layout[i][j], pathNum, i, j, layout, movementMatrix);
+                    p.bfs(layout[i][j], pathNum, i, j, layout, movementMatrix);
+                    pathNum = pathNum + 1;
+                }
+            }
+        }
+
+        int n = io.getInt(); 
+        for (int i = 0; i < n; i++) {
+            int[] arr = {io.getInt() - 1, io.getInt() - 1, io.getInt() - 1, io.getInt() - 1 };
+            //store the entries in an array 
+            String result = (movementMatrix[arr[0]][arr[1]] != movementMatrix[arr[2]][arr[3]])
+            ? "neither"
+            : (layout[arr[0]][arr[1]] == 1)
+            ? "decimal"
+            : "binary";
+            io.println(result);
+            }
+        io.close();
+    }
+}
+
+class pathSearch {
+    private final int currentMatrixSpot;
+    private final int i;
+    private final int j;
+    private final int pathNum;
+    private final int[][] layout;
+    private final int[][] movementMatrix;
+
+    pathSearch(int currentMatrixSpot, int pathNum, int i, int j, int[][] layout, int[][] movementMatrix) {
+        this.i = i;
+        this.j = j;
+        this.pathNum = pathNum;
+        this.currentMatrixSpot = currentMatrixSpot;
+        this.layout = layout;
+        this.movementMatrix = movementMatrix;
+    }
+
+    public void bfs(int currentMatrixSpot, int pathNum, int i, int j, int[][] layout, int[][] movementMatrix) {
+        //breadth first search 
+        if (i < 0) return; //invalid entries
+        if (j < 0) return;
+        if (i >= layout.length) return;
+        if (j >= layout[0].length) return; 
+        if (layout[i][j] != currentMatrixSpot) return;
+        if (movementMatrix[i][j] == pathNum) return; 
+        
+        movementMatrix[i][j] = pathNum; //initialise matrix entry to current path number 
+        bfs(currentMatrixSpot, pathNum, i-1, j, layout, movementMatrix); // down
+        bfs(currentMatrixSpot, pathNum, i+1, j, layout, movementMatrix); //up
+        bfs(currentMatrixSpot, pathNum, i, j+1, layout, movementMatrix); //right
+        bfs(currentMatrixSpot, pathNum, i, j-1, layout, movementMatrix);  //left
+    }
+}
+
+class Kattio extends PrintWriter {
+    public Kattio(InputStream i) {
+        super(new BufferedOutputStream(System.out));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    public Kattio(InputStream i, OutputStream o) {
+        super(new BufferedOutputStream(o));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    
+    public boolean hasMoreTokens() {
+        return peekToken() != null;
+    }
+    
+    public int getInt() {
+        return Integer.parseInt(nextToken());
+    }
+    
+    public double getDouble() {
+        return Double.parseDouble(nextToken());
+    }
+    
+    public long getLong() {
+        return Long.parseLong(nextToken());
+    }
+    
+    public String getWord() {
+        return nextToken();
+    }
+    
+    private BufferedReader r;
+    private String line;
+    private StringTokenizer st;
+    private String token;
+    
+    private String peekToken() {
+        if (token == null)
+            try {
+                while (st == null || !st.hasMoreTokens()) {
+                    line = r.readLine();
+                    if (line == null) return null;
+                    st = new StringTokenizer(line);
+                }
+                token = st.nextToken();
+            } catch (IOException e) { }
+        return token;
+    }
+    
+    private String nextToken() {
+        String ans = peekToken();
+        token = null;
+        return ans;
+    }
+}
