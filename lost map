@@ -1,0 +1,163 @@
+import java.io.*;
+import java.util.*;
+
+class lostmapProcess {
+    private final int vtx;
+    private final ArrayList<ArrayList<IntegerPair>> adjList;
+    private final int[] visited;
+    private final PriorityQueue<IntegerPair> sorting;
+
+    lostmapProcess(int vtx, ArrayList<ArrayList<IntegerPair>> adjList, int[] visited, PriorityQueue<IntegerPair> sorting) {
+        this.vtx = vtx;
+        this.adjList = adjList;
+        this.visited = visited;
+        this.sorting = sorting;
+    }
+
+    public void process(int vtx, ArrayList<ArrayList<IntegerPair>> adjList, int[] visited, PriorityQueue<IntegerPair> sorting) {
+        visited[vtx] = 1; 
+        for(int j = 0; j < adjList.get(vtx).size(); j++) {
+            IntegerPair v = adjList.get(vtx).get(j); 
+            if(visited[v.first] == 0) {
+                IntegerPair ip = new IntegerPair(v.second, v.first);
+                ip.setU(v.u);
+                ip.setV(v.v);
+                 // we sort by weight then by adjacent vertex
+                sorting.offer(ip);
+            }
+        }
+    }
+}
+
+class lostmap {
+    public static void main(String[] args) {
+
+        Kattio io = new Kattio(System.in,System.out); 
+        int village = io.getInt(); 
+
+        int[] visited = new int[village]; 
+        ArrayList<ArrayList<IntegerPair>> adjList = new ArrayList<>();
+        PriorityQueue<IntegerPair> sorting = new PriorityQueue<IntegerPair>(new pairComparator());
+
+        for (int start = 0; start < village; start++) {
+            ArrayList<IntegerPair> villagePair = new ArrayList<>(); 
+            for (int end = 0; end < village; end++) {
+                int villageId = io.getInt();
+                if (villageId != 0) {
+                    IntegerPair ip = new IntegerPair (end, villageId);
+                    ip.setU(start); 
+                    ip.setV(end);
+                    villagePair.add(ip); 
+                }
+            }
+            adjList.add(villagePair);
+        }
+
+        lostmapProcess p = new lostmapProcess(0, adjList, visited, sorting); 
+        p.process(0, adjList, visited, sorting);
+
+        int mst = 0; 
+        int result = village;
+        while(sorting.size()!= 0) { 
+                IntegerPair front = sorting.poll(); 
+                if (visited[front.second] == 0) {
+                    mst = front.first + mst; 
+                    p.process(front.second, adjList, visited, sorting);
+                    io.println(front);
+
+                }
+            
+        }     
+        io.close();
+    }
+}
+
+
+class IntegerPair {
+    public int first;
+    public int second; 
+    public int u; 
+    public int v; 
+
+    IntegerPair(int first, int second) {
+        this.first = first; 
+        this.second = second; 
+    }
+
+    public void setU (int u) {
+        this.u = u; 
+    }
+
+    public void setV (int v) {
+        this.v = v; 
+    }
+
+    @Override
+    public String toString() {
+        return (u+1) + " " + (v+1);
+    }
+}
+
+class pairComparator implements Comparator<IntegerPair>{
+    @Override
+    public int compare(IntegerPair ip1, IntegerPair ip2) {
+        return (ip1.first != ip2.first)
+        ? ip1.first - ip2.first
+        : ip2.second - ip2.second;   
+    }      
+}
+
+class Kattio extends PrintWriter {
+    public Kattio(InputStream i) {
+        super(new BufferedOutputStream(System.out));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    public Kattio(InputStream i, OutputStream o) {
+        super(new BufferedOutputStream(o));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    
+    public boolean hasMoreTokens() {
+        return peekToken() != null;
+    }
+    
+    public int getInt() {
+        return Integer.parseInt(nextToken());
+    }
+    
+    public double getDouble() {
+        return Double.parseDouble(nextToken());
+    }
+    
+    public long getLong() {
+        return Long.parseLong(nextToken());
+    }
+    
+    public String getWord() {
+        return nextToken();
+    }
+    
+    private BufferedReader r;
+    private String line;
+    private StringTokenizer st;
+    private String token;
+    
+    private String peekToken() {
+        if (token == null)
+            try {
+                while (st == null || !st.hasMoreTokens()) {
+                    line = r.readLine();
+                    if (line == null) return null;
+                    st = new StringTokenizer(line);
+                }
+                token = st.nextToken();
+            } catch (IOException e) { }
+        return token;
+    }
+    
+    private String nextToken() {
+        String ans = peekToken();
+        token = null;
+        return ans;
+    }
+}
