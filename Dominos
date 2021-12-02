@@ -1,0 +1,155 @@
+import java.io.*;
+import java.util.*;
+
+class dominoSearch {
+    private final int root;
+    private final ArrayList<ArrayList<Integer>> adjList;
+    private final boolean[] visited;
+    private final Stack<Integer> stack;
+
+    dominoSearch(int root, ArrayList<ArrayList<Integer>> adjList, boolean[] visited, Stack<Integer> stack) {
+        this.root = root;
+        this.stack = stack;
+        this.adjList = adjList;
+        this.visited = visited;
+    }
+
+    public void dfs(int root, Stack<Integer> stack) {
+        visited[root] = true;
+        for (int i = 0; i < adjList.get(root).size(); i++) {
+            int id = adjList.get(root).get(i) - 1;
+            if (!visited[id])
+                dfs(id, stack);
+        }
+        stack.push(root+1);
+    }
+}
+
+
+class dominoSearch1 {
+    private final int root;
+    private final ArrayList<ArrayList<Integer>> adjList;
+    private final boolean[] visited;
+
+    dominoSearch1(int root, ArrayList<ArrayList<Integer>> adjList, boolean[] visited) {
+        this.root = root;
+        this.adjList = adjList;
+        this.visited = visited;
+    }
+
+    public void dfs1(int root) {
+        visited[root] = true;
+        for (int i = 0; i < adjList.get(root).size(); i++) {
+            int id = adjList.get(root).get(i) - 1;
+            if (!visited[id])
+                dfs1(id);
+        }
+    }
+}
+
+public class dominos {    
+    public static void main(String[] args) {
+        Kattio io = new Kattio(System.in,System.out);
+        int testCases = io.getInt();   
+
+        for (int i = 0; i < testCases; i++) {
+            int min = 0;
+            int tiles = io.getInt();
+            int lines = io.getInt();
+            boolean[] visited = new boolean[tiles];
+            ArrayList<ArrayList<Integer>> adjList = new ArrayList<>(tiles);
+
+            for (int j = 0; j < tiles; j++) {
+                adjList.add(new ArrayList<>());
+            }          
+
+            //generating the adj list
+            for (int j = 0; j < lines; j++) {
+                int first = io.getInt();
+                int second = io.getInt(); 
+                if (first == second) continue;
+                adjList.get(first-1).add(second);               
+            }
+
+            Stack<Integer> stack = new Stack<>();
+            for (int j = 0; j < tiles; j++) {
+                if (!visited[j]) {
+                    dominoSearch d = new dominoSearch(j, adjList, visited, stack);
+                    d.dfs(j, stack);
+                }
+            }            
+
+            for (int j = 0; j < tiles; j++) {
+                visited[j] = false;
+            }
+
+            while (stack.size() > 0) {
+                int id = stack.pop() - 1;
+                if (!visited[id]) {
+                    dominoSearch1 d = new dominoSearch1(id, adjList, visited);
+                    d.dfs1(id);
+                    min++;
+                }
+            }
+            io.println(min);
+        }
+        io.close();
+    }
+}
+
+
+
+class Kattio extends PrintWriter {
+    public Kattio(InputStream i) {
+        super(new BufferedOutputStream(System.out));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    public Kattio(InputStream i, OutputStream o) {
+        super(new BufferedOutputStream(o));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    
+    public boolean hasMoreTokens() {
+        return peekToken() != null;
+    }
+    
+    public int getInt() {
+        return Integer.parseInt(nextToken());
+    }
+    
+    public double getDouble() {
+        return Double.parseDouble(nextToken());
+    }
+    
+    public long getLong() {
+        return Long.parseLong(nextToken());
+    }
+    
+    public String getWord() {
+        return nextToken();
+    }
+    
+    private BufferedReader r;
+    private String line;
+    private StringTokenizer st;
+    private String token;
+    
+    private String peekToken() {
+        if (token == null)
+            try {
+                while (st == null || !st.hasMoreTokens()) {
+                    line = r.readLine();
+                    if (line == null) return null;
+                    st = new StringTokenizer(line);
+                }
+                token = st.nextToken();
+            } catch (IOException e) { }
+        return token;
+    }
+    
+    private String nextToken() {
+        String ans = peekToken();
+        token = null;
+        return ans;
+    }
+}
