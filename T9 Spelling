@@ -1,0 +1,66 @@
+import java.io.*;
+import java.util.*;
+
+public class T9 {
+    public static void main(String[] args) throws IOException {
+        //IOException; must be caught or declared to be thrown
+        //arraylist of alphabets
+        List<String> one = Arrays.asList("a", "b", "c", "d", "e", "f",
+                "g", "h", "i", "j", "k", "l", "m", "n" , "o", "p",
+                "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", " ");
+        ArrayList<String> alphabet = new ArrayList<>();
+        alphabet.addAll(one);
+
+        //arrayList of number output corresponding to the alphabets
+        List<String> two = Arrays.asList("2", "22", "222", "3", "33", "333", "4", "44", "444",
+                "5", "55", "555", "6", "66", "666", "7", "77", "777", "7777", "8", "88", "888",
+                "9", "99", "999", "9999", "0");
+        ArrayList<String> number = new ArrayList<>();
+        number.addAll(two);
+
+        //introduce BufferedReader
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int numOfInputs = Integer.parseInt(br.readLine());
+
+        //introduce PrintWriter
+        PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(System.out)));
+
+        //see what's the first integer input and see how many times to run the for loop 
+        for (int i = 0; i < numOfInputs; i++) {
+            String word = br.readLine();
+            //convert the each word into an array of characters
+            char[] charArr = word.toCharArray();
+            pw.print("Case #" + (i+1) + ": ");
+
+            //iterate through the character array
+            String output = "";
+            //word.length() - 1  since we are checking the char of the current index with char at position index+1
+            for (int j = 0; j < word.length() - 1; j++) {
+                //convert current alphabet character to string 
+                String currentAlphabet = String.valueOf(charArr[j]);
+                
+                //index of currentAlphabet in alphabet array
+                int currentId = alphabet.indexOf(currentAlphabet);
+                String currentNum = number.get(currentId);
+                //check if number output of currentAlphabet is same as the next alphabet 
+                String nextAlphabet = String.valueOf(charArr[j+1]);
+                int nextId = alphabet.indexOf(nextAlphabet);
+                String nextNum = number.get(nextId);
+                if (currentNum.charAt(0) == (nextNum.charAt(0))) {
+                    pw.print(currentNum + " ");
+                } else {
+                    pw.print(currentNum);
+                }
+            }
+
+            //final value, the character at the last index that I didn't account for in the initial for loop
+            String finalAlphabet = String.valueOf(charArr[charArr.length -1]);
+            int finalId = alphabet.indexOf(finalAlphabet);
+            String finalNum = number.get(finalId);
+            pw.print(finalNum);
+            pw.println(" ");
+        }
+        pw.flush();
+        //call flush() to save time
+    }
+}
