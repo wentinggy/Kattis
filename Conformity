@@ -1,0 +1,120 @@
+import java.io.*;
+import java.util.*;
+
+class Course {
+    public String course1;
+    public String course2;
+    public String course3;
+    public String course4;
+    public String course5;
+
+    public Course(String course1, String course2, String course3, String course4, String course5) {
+        this.course1 = course1;
+        this.course2 = course2;
+        this.course3 = course3;
+        this.course4 = course4;
+        this.course5 = course5;
+    }
+}
+public class conformity {
+    public static void main(String[] args){
+        Kattio io = new Kattio(System.in, System.out);
+        int numOfStudents = io.getInt();
+    
+        int result = 0;
+        int popular = 0;
+        HashMap<String, Integer> hashMap = new HashMap<>();
+        
+        for (int i = 0; i < numOfStudents; i++) {
+            ArrayList<Course> courseList = new ArrayList<>();  
+            courseList.add(new Course(io.getWord(), io.getWord(), io.getWord(), io.getWord(), io.getWord()));
+            ArrayList<String> list = new ArrayList<>();  
+            list.add(courseList.get(0).course1);
+            list.add(courseList.get(0).course2);
+            list.add(courseList.get(0).course3);
+            list.add(courseList.get(0).course4);
+            list.add(courseList.get(0).course5);
+            list.sort(Comparator.comparingInt(Integer::parseInt));
+            String course = list.get(0) + list.get(1) + list.get(2)  + list.get(3) + list.get(4);
+            
+            //check if course is in the hashmap
+            int key = (hashMap.containsKey(course))
+            ? hashMap.get(course)+1 : 1;
+            //.put adds key to that value
+            
+            hashMap.put(course, key);
+        
+            //.get gives the value corresponding to the key
+            popular = (popular < hashMap.get(course)) 
+            ? hashMap.get(course) : popular;
+        }
+
+        Iterator iterator = hashMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry pair = (Map.Entry)iterator.next();
+            if ((int)pair.getValue() == popular) {
+                result += popular;
+            }
+        }
+        io.println(result);
+        io.close();
+    }
+}
+
+
+class Kattio extends PrintWriter {
+    public Kattio(InputStream i) {
+        super(new BufferedOutputStream(System.out));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    public Kattio(InputStream i, OutputStream o) {
+        super(new BufferedOutputStream(o));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+
+    public boolean hasMoreTokens() {
+        return peekToken() != null;
+    }
+
+    public int getInt() {
+        return Integer.parseInt(nextToken());
+    }
+
+    public double getDouble() {
+        return Double.parseDouble(nextToken());
+    }
+
+    public long getLong() {
+        return Long.parseLong(nextToken());
+    }
+
+    public String getWord() {
+        return nextToken();
+    }
+
+
+
+    private BufferedReader r;
+    private String line;
+    private StringTokenizer st;
+    private String token;
+
+    private String peekToken() {
+        if (token == null)
+            try {
+                while (st == null || !st.hasMoreTokens()) {
+                    line = r.readLine();
+                    if (line == null) return null;
+                    st = new StringTokenizer(line);
+                }
+                token = st.nextToken();
+            } catch (IOException e) { }
+        return token;
+    }
+
+    private String nextToken() {
+        String ans = peekToken();
+        token = null;
+        return ans;
+    }
+}
