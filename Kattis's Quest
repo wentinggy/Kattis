@@ -1,0 +1,121 @@
+import java.io.*;
+import java.util.*;
+    
+class kattisquest {
+    public static void main(String[] args) {
+        Kattio io = new Kattio(System.in, System.out);
+        long numCommands = io.getLong();
+    
+        TreeSet<quest> questSet = new TreeSet<>(new questComparator());
+
+        for (int i= 0; i < numCommands; i++ ) {
+            String command = io.getWord();
+
+            if (command.equals("query")) {   
+                long amtOfGold = 0;
+                long energy = io.getLong();
+            
+                while (questSet.floor(new quest(energy,99999999, 0)) instanceof quest) {
+                    //Returns the first element equals to or smaller than element in the TreeSet
+
+                    quest curr = questSet.floor(new quest(energy,9999999, 0));              
+                    questSet.remove(curr);
+                    //add a copy of the quest with energy consumption 𝐸 and gold reward 𝐺 into the pool
+                    amtOfGold = amtOfGold + curr.gold;
+                    energy = energy - curr.energy;
+                }
+            io.println(amtOfGold);
+
+            } else if (command.equals("add")) {
+                questSet.add(new quest(io.getLong(), io.getLong(), i));
+            }
+        }
+        io.close();
+    }
+}
+
+class quest {
+    public long energy;
+    public long gold;
+    public int index;
+
+    quest(long energy, long gold, int index) {
+        this.energy = energy;
+        this.gold = gold;
+        this.index = index;
+    }
+}
+
+class questComparator implements Comparator<quest>{
+    @Override
+    public int compare(quest q1, quest q2) {
+        return (q1.energy < q2.energy)
+        ? -1
+        : (q1.energy > q2.energy)
+        ? 1
+        : (q1.gold < q2.gold)
+        ? -1
+        : (q1.gold > q2.gold) 
+        ? 1
+        : (q1.index < q2.index)
+        ? 1
+        : (q1.index > q2.index)
+        ? -1
+        : 0;  
+    }       
+}
+
+class Kattio extends PrintWriter {
+    public Kattio(InputStream i) {
+        super(new BufferedOutputStream(System.out));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    public Kattio(InputStream i, OutputStream o) {
+        super(new BufferedOutputStream(o));
+        r = new BufferedReader(new InputStreamReader(i));
+    }
+    
+    public boolean hasMoreTokens() {
+        return peekToken() != null;
+    }
+    
+    public int getInt() {
+        return Integer.parseInt(nextToken());
+    }
+    
+    public double getDouble() {
+        return Double.parseDouble(nextToken());
+    }
+    
+    public long getLong() {
+        return Long.parseLong(nextToken());
+    }
+    
+    public String getWord() {
+        return nextToken();
+    }
+    
+    private BufferedReader r;
+    private String line;
+    private StringTokenizer st;
+    private String token;
+    
+    private String peekToken() {
+        if (token == null)
+            try {
+                while (st == null || !st.hasMoreTokens()) {
+                    line = r.readLine();
+                    if (line == null) return null;
+                    st = new StringTokenizer(line);
+                }
+                token = st.nextToken();
+            } catch (IOException e) { }
+        return token;
+    }
+    
+    private String nextToken() {
+        String ans = peekToken();
+        token = null;
+        return ans;
+    }
+}
